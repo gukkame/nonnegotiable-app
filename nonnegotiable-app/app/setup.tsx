@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from 'react'
 import {
   View,
   Text,
@@ -7,49 +7,43 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useApp } from '../lib/AppContext';
+  StyleSheet,
+} from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { useApp } from '../lib/AppContext'
+import { C } from '../lib/colors'
+import React from 'react'
 
 export default function SetupScreen() {
-  const { setNonnegotiable } = useApp();
-  const [projectName, setProjectName] = useState('');
-  const [action, setAction] = useState('');
-  const [why, setWhy] = useState('');
+  const { setNonnegotiable } = useApp()
+  const [projectName, setProjectName] = useState('')
+  const [action, setAction] = useState('')
+  const [why, setWhy] = useState('')
 
-  const canSubmit =
-    projectName.trim().length > 0 &&
-    action.trim().length > 0 &&
-    why.trim().length > 0;
+  const canSubmit = projectName.trim() && action.trim() && why.trim()
 
   const onSubmit = async () => {
-    if (!canSubmit) return;
+    if (!canSubmit) return
     await setNonnegotiable({
       projectName: projectName.trim(),
       action: action.trim(),
       why: why.trim(),
       createdAt: new Date().toISOString(),
-    });
-    // _layout effect will redirect to (tabs)
-  };
+    })
+  }
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={s.safe}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        className="flex-1"
+        style={{ flex: 1 }}
       >
         <ScrollView
-          className="flex-1"
-          contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 32, paddingBottom: 32 }}
+          contentContainerStyle={s.scroll}
           keyboardShouldPersistTaps="handled"
         >
-          <Text className="text-3xl font-bold text-neutral-900 mb-2">
-            Define your nonnegotiable
-          </Text>
-          <Text className="text-base text-neutral-600 mb-10">
-            One project. One daily action. One reason.
-          </Text>
+          <Text style={s.heading}>Define your{'\n'}nonnegotiable.</Text>
+          <Text style={s.sub}>One project. One daily action. One reason.</Text>
 
           <Field
             label="Project name"
@@ -57,17 +51,15 @@ export default function SetupScreen() {
             value={projectName}
             onChangeText={setProjectName}
           />
-
           <Field
-            label="Your nonnegotiable action"
+            label="Non-negotiable action"
             placeholder="e.g. Write 500 words"
             value={action}
             onChangeText={setAction}
             multiline
           />
-
           <Field
-            label="Why (one sentence)"
+            label="Why — one sentence"
             placeholder="e.g. Because I owe it to my future self."
             value={why}
             onChangeText={setWhy}
@@ -77,16 +69,18 @@ export default function SetupScreen() {
           <Pressable
             onPress={onSubmit}
             disabled={!canSubmit}
-            className={`rounded-2xl py-5 items-center mt-6 ${
-              canSubmit ? 'bg-neutral-900' : 'bg-neutral-300'
-            }`}
+            style={({ pressed }) => [
+              s.btn,
+              !canSubmit && s.btnDisabled,
+              pressed && { opacity: 0.72 },
+            ]}
           >
-            <Text className="text-lg font-semibold text-white">Commit</Text>
+            <Text style={s.btnText}>Commit</Text>
           </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
-  );
+  )
 }
 
 function Field({
@@ -96,26 +90,71 @@ function Field({
   onChangeText,
   multiline,
 }: {
-  label: string;
-  placeholder: string;
-  value: string;
-  onChangeText: (v: string) => void;
-  multiline?: boolean;
+  label: string
+  placeholder: string
+  value: string
+  onChangeText: (v: string) => void
+  multiline?: boolean
 }) {
+  const [focused, setFocused] = useState(false)
   return (
-    <View className="mb-6">
-      <Text className="text-sm uppercase tracking-wider text-neutral-500 mb-2">
-        {label}
-      </Text>
+    <View style={s.field}>
+      <Text style={s.fieldLabel}>{label}</Text>
       <TextInput
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor="#a3a3a3"
+        placeholderTextColor={C.secondary + '80'}
         multiline={multiline}
-        className="border border-neutral-200 rounded-xl px-4 py-3 text-base text-neutral-900 bg-neutral-50"
-        style={multiline ? { minHeight: 72, textAlignVertical: 'top' } : undefined}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        style={[s.input, multiline && s.inputMulti, focused && s.inputFocused]}
       />
     </View>
-  );
+  )
 }
+
+const s = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: C.bg },
+  scroll: { paddingHorizontal: 24, paddingTop: 32, paddingBottom: 48 },
+  heading: {
+    fontSize: 26,
+    fontWeight: '800',
+    color: C.primary,
+    letterSpacing: -0.5,
+    lineHeight: 32,
+    marginBottom: 8,
+  },
+  sub: { fontSize: 14, color: C.secondary, lineHeight: 22, marginBottom: 36 },
+  field: { marginBottom: 22 },
+  fieldLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+    color: C.secondary,
+    marginBottom: 8,
+  },
+  input: {
+    backgroundColor: C.card,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.07)',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    color: C.primary,
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  inputMulti: { minHeight: 78, textAlignVertical: 'top' },
+  inputFocused: { borderColor: C.accent + '60' },
+  btn: {
+    backgroundColor: C.accent,
+    borderRadius: 14,
+    paddingVertical: 18,
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  btnDisabled: { backgroundColor: C.card, opacity: 0.4 },
+  btnText: { fontSize: 16, fontWeight: '600', color: '#fff' },
+})

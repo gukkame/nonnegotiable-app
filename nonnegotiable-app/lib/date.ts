@@ -18,60 +18,57 @@ export function daysAgoKey(n: number, from: Date = new Date()): string {
 }
 
 /**
- * Computes the current streak: number of consecutive days ending today
- * (or yesterday, if today isn't checked yet) that are marked complete.
- *
- * Rule: streak only breaks once a day has been missed AND that day is in
- * the past. Today being uncompleted doesn't break the streak yet — we
- * count backwards from yesterday in that case.
+ * Returns the 7 YYYY-MM-DD keys for the current Mon–Sun week.
+ */
+export function getWeekKeys(from: Date = new Date()): string[] {
+  const day = from.getDay(); // 0 = Sun
+  const mon = new Date(from);
+  mon.setDate(from.getDate() - ((day + 6) % 7));
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(mon);
+    d.setDate(mon.getDate() + i);
+    return todayKey(d);
+  });
+}
+
+/**
+ * Current streak: consecutive days ending today (or yesterday if today
+ * is not yet checked). Today being unchecked doesn't break the streak.
  */
 export function computeStreak(
-  checkIns: Record<string, boolean>,
+  checkIns: Record<string, unknown>,
   today: Date = new Date()
 ): number {
   let streak = 0;
   const todayK = todayKey(today);
   const startOffset = checkIns[todayK] ? 0 : 1;
-
   for (let i = startOffset; i < 10000; i++) {
     const key = daysAgoKey(i, today);
-    if (checkIns[key]) {
-      streak++;
-    } else {
-      break;
-    }
+    if (checkIns[key]) { streak++; } else { break; }
   }
   return streak;
 }
 
 /**
- * Longest streak ever recorded in the check-in history.
+ * Longest consecutive streak ever.
  */
-export function computeLongestStreak(checkIns: Record<string, boolean>): number {
-  const dates = Object.keys(checkIns)
-    .filter((k) => checkIns[k])
-    .sort();
+export function computeLongestStreak(checkIns: Record<string, unknown>): number {
+  const dates = Object.keys(checkIns).filter(k => checkIns[k] === 'yes').sort();
   if (dates.length === 0) return 0;
-
-  let longest = 1;
-  let current = 1;
+  let longest = 1, current = 1;
   for (let i = 1; i < dates.length; i++) {
-    const prev = new Date(dates[i - 1]);
-    const curr = new Date(dates[i]);
-    const diffDays = Math.round((curr.getTime() - prev.getTime()) / 86400000);
-    if (diffDays === 1) {
-      current++;
-      longest = Math.max(longest, current);
-    } else {
-      current = 1;
-    }
+    const diff = Math.round(
+      (new Date(dates[i]).getTime() - new Date(dates[i - 1]).getTime()) / 86400000
+    );
+    if (diff === 1) { current++; longest = Math.max(longest, current); }
+    else { current = 1; }
   }
   return longest;
 }
 
 /**
- * Total check-ins (lifetime count).
+ * Total YES check-ins (lifetime).
  */
-export function totalCheckIns(checkIns: Record<string, boolean>): number {
-  return Object.values(checkIns).filter(Boolean).length;
+export function totalCheckIns(checkIns: Record<string, unknown>): number {
+  return Object.values(checkIns).filter(v => v === 'yes').length;
 }

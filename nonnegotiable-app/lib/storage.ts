@@ -1,9 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { Nonnegotiable } from '../types';
+import type { Nonnegotiable, CheckIns } from '../types';
 
 const KEYS = {
   nonnegotiable: '@nonnegotiable/definition',
-  checkIns: '@nonnegotiable/checkIns',
+  checkIns:      '@nonnegotiable/checkIns',
 } as const;
 
 export async function loadNonnegotiable(): Promise<Nonnegotiable | null> {
@@ -24,16 +24,16 @@ export async function clearNonnegotiable(): Promise<void> {
   await AsyncStorage.multiRemove([KEYS.nonnegotiable, KEYS.checkIns]);
 }
 
-export async function loadCheckIns(): Promise<Record<string, boolean>> {
+export async function loadCheckIns(): Promise<CheckIns> {
   try {
     const raw = await AsyncStorage.getItem(KEYS.checkIns);
-    return raw ? (JSON.parse(raw) as Record<string, boolean>) : {};
+    return raw ? (JSON.parse(raw) as CheckIns) : {};
   } catch (err) {
     console.warn('Failed to load check-ins', err);
     return {};
   }
 }
 
-export async function saveCheckIns(checkIns: Record<string, boolean>): Promise<void> {
+export async function saveCheckIns(checkIns: CheckIns): Promise<void> {
   await AsyncStorage.setItem(KEYS.checkIns, JSON.stringify(checkIns));
 }
