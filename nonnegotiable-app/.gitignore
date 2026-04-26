@@ -10,6 +10,8 @@
 /.vscode
 /.idea
 /.DS_Store
+/ios
+/design-reference
 
 expo-env.d.ts
 # @end expo-cli

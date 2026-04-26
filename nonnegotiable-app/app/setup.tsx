@@ -11,7 +11,7 @@ import {
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useApp } from '../lib/AppContext'
-import { C } from '../lib/colors'
+import { Colors } from '../lib/colors'
 import React from 'react'
 
 export default function SetupScreen() {
@@ -72,10 +72,12 @@ export default function SetupScreen() {
             style={({ pressed }) => [
               s.btn,
               !canSubmit && s.btnDisabled,
-              pressed && { opacity: 0.72 },
+              pressed && s.btnPressed,
             ]}
           >
-            <Text style={s.btnText}>Commit</Text>
+            <Text style={[s.btnText, !canSubmit && s.btnTextDisabled]}>
+              Commit
+            </Text>
           </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -104,7 +106,7 @@ function Field({
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor={C.secondary + '80'}
+        placeholderTextColor={Colors.secondary + '80'}
         multiline={multiline}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
@@ -115,46 +117,69 @@ function Field({
 }
 
 const s = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: C.bg },
+  safe: { flex: 1, backgroundColor: Colors.bg },
   scroll: { paddingHorizontal: 24, paddingTop: 32, paddingBottom: 48 },
   heading: {
     fontSize: 26,
     fontWeight: '800',
-    color: C.primary,
+    color: Colors.primary,
     letterSpacing: -0.5,
     lineHeight: 32,
     marginBottom: 8,
   },
-  sub: { fontSize: 14, color: C.secondary, lineHeight: 22, marginBottom: 36 },
+  sub: {
+    fontSize: 14,
+    color: Colors.secondary,
+    lineHeight: 22,
+    marginBottom: 36,
+  },
   field: { marginBottom: 22 },
   fieldLabel: {
     fontSize: 11,
     fontWeight: '600',
     letterSpacing: 1.2,
     textTransform: 'uppercase',
-    color: C.secondary,
+    color: Colors.secondary,
     marginBottom: 8,
   },
   input: {
-    backgroundColor: C.card,
+    backgroundColor: Colors.card,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.07)',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 16,
-    color: C.primary,
+    color: Colors.primary,
     fontSize: 16,
     lineHeight: 24,
   },
   inputMulti: { minHeight: 78, textAlignVertical: 'top' },
-  inputFocused: { borderColor: C.accent + '60' },
+  inputFocused: { borderColor: Colors.accent + '60' },
   btn: {
-    backgroundColor: C.accent,
-    borderRadius: 14,
+    backgroundColor: Colors.accent,
+    borderRadius: 16,
     paddingVertical: 18,
     alignItems: 'center',
     marginTop: 12,
+    shadowColor: Colors.accent,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    elevation: 6,
   },
-  btnDisabled: { backgroundColor: C.card, opacity: 0.4 },
-  btnText: { fontSize: 16, fontWeight: '600', color: '#fff' },
+  btnDisabled: {
+    backgroundColor: Colors.card,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.07)',
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  btnPressed: { opacity: 0.82, transform: [{ scale: 0.985 }] },
+  btnText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#fff',
+    letterSpacing: 0.4,
+  },
+  btnTextDisabled: { color: Colors.secondary },
 })

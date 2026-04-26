@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useEffect } from 'react';
 import { AppProvider, useApp } from '../lib/AppContext';
+import React from 'react';
 
 function RootNavigator() {
   const { ready, nonnegotiable } = useApp();
