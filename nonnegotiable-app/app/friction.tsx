@@ -3,20 +3,30 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
 import { useApp } from '../lib/AppContext'
 import { Colors } from '../lib/colors'
-import React from 'react'
+import React, { useRef } from 'react'
 
-/**
- * Friction Mode — surfaces the smallest possible action to lower
- * the barrier to starting. Navigated to from the Home screen via
- * router.push('/friction'). Presented as a modal (see _layout.tsx).
- */
+const NUDGES = [
+  "Don't think about the full task.\nJust do this one thing. That's enough to start.",
+  "Motivation follows action, not the other way around.\nStart before you feel ready.",
+  "You don't have to do it well.\nYou just have to do it.",
+  "The hardest part is sitting down.\nYou've already done the harder thing — you're here.",
+  "One small move breaks the inertia.\nEverything else gets easier after this.",
+  "You're not behind. You're just starting.\nThat's all this moment asks.",
+  "Resistance is loudest right before you begin.\nPush through the first sixty seconds.",
+  "No conditions. No 'when I feel like it'.\nJust this. Just now.",
+  "Done imperfectly beats not started perfectly.\nGo.",
+  "Your future self is watching.\nGive them something to be grateful for.",
+]
+
 export default function FrictionScreen() {
   const { nonnegotiable, markToday } = useApp()
   const router = useRouter()
+  const nudge = useRef(NUDGES[Math.floor(Math.random() * NUDGES.length)]).current
 
   if (!nonnegotiable) return null
 
-  const microAction = `Open your laptop and open the ${nonnegotiable.projectName} project.`
+  const microAction = nonnegotiable.bareMinimum ||
+    `Open your laptop and open the ${nonnegotiable.projectName} project.`
 
   const handleDone = async () => {
     await markToday('yes')
@@ -24,41 +34,35 @@ export default function FrictionScreen() {
   }
 
   return (
-    <SafeAreaView style={s.safe}>
-      <View style={s.container}>
+    <SafeAreaView style={styleSheet.safe}>
+      <View style={styleSheet.container}>
         {/* Back */}
         <Pressable
           onPress={() => router.back()}
-          style={({ pressed }) => [s.back, pressed && { opacity: 0.6 }]}
+          style={styleSheet.back}
         >
-          <Text style={s.backText}>← Back</Text>
+          <Text style={styleSheet.backText}>← Back</Text>
         </Pressable>
 
         {/* Content */}
-        <View style={s.body}>
-          <Text style={s.eyebrow}>Smallest possible step</Text>
-          <Text style={s.action}>{microAction}</Text>
-          <View style={s.note}>
-            <Text style={s.noteText}>
-              Don't think about the full task.{'\n'}
-              Just do this one thing. That's enough to start.
-            </Text>
+        <View style={styleSheet.body}>
+          <Text style={styleSheet.eyebrow}>Smallest possible step</Text>
+          <Text style={styleSheet.action}>{microAction}</Text>
+          <View style={styleSheet.note}>
+            <Text style={styleSheet.noteText}>{nudge}</Text>
           </View>
         </View>
 
         {/* CTA */}
-        <Pressable
-          style={({ pressed }) => [s.btn, pressed && { opacity: 0.72 }]}
-          onPress={handleDone}
-        >
-          <Text style={s.btnText}>Done — I started</Text>
+        <Pressable style={styleSheet.btn} onPress={handleDone}>
+          <Text style={styleSheet.btnText}>Done — I started</Text>
         </Pressable>
       </View>
     </SafeAreaView>
   )
 }
 
-const s = StyleSheet.create({
+const styleSheet = StyleSheet.create({
   safe: { flex: 1, backgroundColor: Colors.bg },
   container: {
     flex: 1,

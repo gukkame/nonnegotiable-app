@@ -23,12 +23,14 @@ export default function SetupTabScreen() {
     nonnegotiable?.projectName ?? '',
   )
   const [action, setAction] = useState(nonnegotiable?.action ?? '')
+  const [bareMinimum, setBareMinimum] = useState(nonnegotiable?.bareMinimum ?? '')
   const [why, setWhy] = useState(nonnegotiable?.why ?? '')
 
   const canSubmit = projectName.trim() && action.trim() && why.trim()
   const hasChanges =
     projectName.trim() !== (nonnegotiable?.projectName ?? '') ||
     action.trim() !== (nonnegotiable?.action ?? '') ||
+    bareMinimum.trim() !== (nonnegotiable?.bareMinimum ?? '') ||
     why.trim() !== (nonnegotiable?.why ?? '')
 
   const onSave = async () => {
@@ -36,8 +38,10 @@ export default function SetupTabScreen() {
     await setNonnegotiable({
       projectName: projectName.trim(),
       action: action.trim(),
+      bareMinimum: bareMinimum.trim() || undefined,
       why: why.trim(),
       createdAt: nonnegotiable?.createdAt ?? new Date().toISOString(),
+      weeklyAdjustment: nonnegotiable?.weeklyAdjustment,
     })
     Alert.alert('Saved', 'Your nonnegotiable has been updated.')
   }
@@ -86,6 +90,13 @@ export default function SetupTabScreen() {
               multiline
             />
             <Field
+              label="Bare minimum"
+              placeholder="e.g. Open the doc and write one sentence"
+              value={bareMinimum}
+              onChangeText={setBareMinimum}
+              multiline
+            />
+            <Field
               label="Why — one sentence"
               placeholder="e.g. Because I owe it to my future self."
               value={why}
@@ -96,10 +107,9 @@ export default function SetupTabScreen() {
             <Pressable
               onPress={onSave}
               disabled={!canSubmit || !hasChanges}
-              style={({ pressed }) => [
+              style={[
                 styleSheet.btn,
                 (!canSubmit || !hasChanges) && styleSheet.btnDisabled,
-                pressed && { opacity: 0.72 },
               ]}
             >
               <Text style={styleSheet.btnText}>Save changes</Text>
@@ -110,8 +120,8 @@ export default function SetupTabScreen() {
                 Reset project &amp; check-ins
               </Text>
             </Pressable>
-          </ScrollView>{' '}
-        </Pressable>{' '}
+          </ScrollView>
+        </Pressable>
       </KeyboardAvoidingView>
     </SafeAreaView>
   )

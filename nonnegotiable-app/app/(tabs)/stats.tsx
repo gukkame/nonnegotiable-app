@@ -24,12 +24,12 @@ export default function StatsScreen() {
   })
 
   return (
-    <SafeAreaView style={s.safe}>
-      <ScrollView contentContainerStyle={s.scroll}>
-        <Text style={s.title}>Stats</Text>
+    <SafeAreaView style={styleSheet.safe}>
+      <ScrollView contentContainerStyle={styleSheet.scroll}>
+        <Text style={styleSheet.title}>Stats</Text>
 
         {/* Metric cards */}
-        <View style={s.cards}>
+        <View style={styleSheet.cards}>
           {[
             {
               label: 'Current',
@@ -47,22 +47,22 @@ export default function StatsScreen() {
               suffix: total === 1 ? 'check-in' : 'check-ins',
             },
           ].map((m) => (
-            <View key={m.label} style={s.card}>
-              <Text style={s.cardLabel}>{m.label}</Text>
-              <Text style={s.cardValue}>{m.value}</Text>
-              <Text style={s.cardSuffix}>{m.suffix}</Text>
+            <View key={m.label} style={styleSheet.card}>
+              <Text style={styleSheet.cardLabel}>{m.label}</Text>
+              <Text style={styleSheet.cardValue}>{m.value}</Text>
+              <Text style={styleSheet.cardSuffix}>{m.suffix}</Text>
             </View>
           ))}
         </View>
 
         {/* 30-day grid */}
-        <Text style={s.sectionLabel}>Last 30 days</Text>
-        <View style={s.grid}>
+        <Text style={styleSheet.sectionLabel}>Last 30 days</Text>
+        <View style={styleSheet.grid}>
           {days.map((d) => (
             <View
               key={d.key}
               style={[
-                s.dot,
+                styleSheet.dot,
                 d.val === 'yes' && {
                   backgroundColor: Colors.success,
                   borderColor: 'transparent',
@@ -78,9 +78,9 @@ export default function StatsScreen() {
 
         {/* Tracking since */}
         {nonnegotiable && (
-          <View style={s.since}>
-            <Text style={s.sinceLabel}>Tracking since</Text>
-            <Text style={s.sinceValue}>
+          <View style={styleSheet.since}>
+            <Text style={styleSheet.sinceLabel}>Tracking since</Text>
+            <Text style={styleSheet.sinceValue}>
               {new Date(nonnegotiable.createdAt).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
@@ -94,7 +94,7 @@ export default function StatsScreen() {
   )
 }
 
-const s = StyleSheet.create({
+const styleSheet = StyleSheet.create({
   safe: { flex: 1, backgroundColor: Colors.bg },
   scroll: { paddingHorizontal: 24, paddingTop: 32, paddingBottom: 48 },
   title: {

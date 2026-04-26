@@ -1,35 +1,44 @@
 import React, {
   createContext, useContext, useEffect, useState, useCallback,
 } from 'react';
-import type { Nonnegotiable, CheckIns, CheckInValue } from '../types';
+import type { Nonnegotiable, CheckIns, CheckInValue, ExecutionRule } from '../types';
 import {
   loadNonnegotiable, saveNonnegotiable, clearNonnegotiable,
   loadCheckIns, saveCheckIns,
+  loadWeeklyResetWeek, saveWeeklyResetWeek, clearWeeklyResetWeek,
 } from './storage';
-import { todayKey } from './date';
+import { todayKey, getWeekKeys } from './date';
 
 type AppContextValue = {
-  ready:            boolean;
-  nonnegotiable:    Nonnegotiable | null;
-  checkIns:         CheckIns;
-  todayValue:       CheckInValue | undefined;
-  setNonnegotiable: (n: Nonnegotiable) => Promise<void>;
-  markToday:        (val: CheckInValue) => Promise<void>;
-  resetAll:         () => Promise<void>;
+  ready:               boolean;
+  nonnegotiable:       Nonnegotiable | null;
+  checkIns:            CheckIns;
+  todayValue:          CheckInValue | undefined;
+  weeklyResetDone:     boolean;
+  setNonnegotiable:    (n: Nonnegotiable) => Promise<void>;
+  markToday:           (val: CheckInValue) => Promise<void>;
+  submitWeeklyReset:   (adjustment: string | null, rule?: ExecutionRule) => Promise<void>;
+  resetAll:            () => Promise<void>;
 };
 
 const AppContext = createContext<AppContextValue | null>(null);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  const [ready, setReady]                     = useState(false);
-  const [nonnegotiable, setNonnegotiableState]= useState<Nonnegotiable | null>(null);
-  const [checkIns, setCheckInsState]          = useState<CheckIns>({});
+  const [ready, setReady]                      = useState(false);
+  const [nonnegotiable, setNonnegotiableState] = useState<Nonnegotiable | null>(null);
+  const [checkIns, setCheckInsState]           = useState<CheckIns>({});
+  const [weeklyResetWeek, setWeeklyResetWeek]  = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
-      const [n, c] = await Promise.all([loadNonnegotiable(), loadCheckIns()]);
+      const [n, c, w] = await Promise.all([
+        loadNonnegotiable(),
+        loadCheckIns(),
+        loadWeeklyResetWeek(),
+      ]);
       setNonnegotiableState(n);
       setCheckInsState(c);
+      setWeeklyResetWeek(w);
       setReady(true);
     })();
   }, []);
@@ -39,16 +48,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setNonnegotiableState(n);
   }, []);
 
-  /**
-   * Mark today as 'yes' or 'no'.
-   * Calling with the same value a second time clears the entry (toggle off).
-   */
   const markToday = useCallback(async (val: CheckInValue) => {
     const key = todayKey();
     const current = checkIns[key];
     const next: CheckIns = { ...checkIns };
     if (current === val) {
-      delete next[key]; // tap same button again → unmark
+      delete next[key];
     } else {
       next[key] = val;
     }
@@ -56,18 +61,40 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     await saveCheckIns(next);
   }, [checkIns]);
 
+  const submitWeeklyReset = useCallback(async (adjustment: string | null, rule?: ExecutionRule) => {
+    const weekKey = getWeekKeys()[0]; // Monday of current week
+    await saveWeeklyResetWeek(weekKey);
+    setWeeklyResetWeek(weekKey);
+
+    if (nonnegotiable) {
+      const updated: Nonnegotiable = {
+        ...nonnegotiable,
+        weeklyAdjustment: adjustment ?? undefined,
+        executionRule: rule ?? nonnegotiable.executionRule,
+      };
+      await saveNonnegotiable(updated);
+      setNonnegotiableState(updated);
+    }
+  }, [nonnegotiable]);
+
   const resetAll = useCallback(async () => {
     await clearNonnegotiable();
+    await clearWeeklyResetWeek();
     setNonnegotiableState(null);
     setCheckInsState({});
+    setWeeklyResetWeek(null);
   }, []);
 
+  const currentWeekKey = getWeekKeys()[0];
+  console.log({ currentWeekKey, weeklyResetWeek });
+  const weeklyResetDone = weeklyResetWeek === currentWeekKey;
   const todayValue = checkIns[todayKey()];
 
   return (
     <AppContext.Provider value={{
       ready, nonnegotiable, checkIns, todayValue,
-      setNonnegotiable, markToday, resetAll,
+      weeklyResetDone,
+      setNonnegotiable, markToday, submitWeeklyReset, resetAll,
     }}>
       {children}
     </AppContext.Provider>

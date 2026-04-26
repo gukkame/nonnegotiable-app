@@ -1,32 +1,29 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
+  View, Text,
+  KeyboardAvoidingView, Platform, ScrollView, StyleSheet,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useApp } from '../lib/AppContext'
 import { Colors } from '../lib/colors'
-import React from 'react'
+import { Field } from '../components/Field'
+import { PrimaryButton } from '../components/PrimaryButton'
 
 export default function SetupScreen() {
   const { setNonnegotiable } = useApp()
   const [projectName, setProjectName] = useState('')
-  const [action, setAction] = useState('')
-  const [why, setWhy] = useState('')
+  const [action, setAction]           = useState('')
+  const [bareMinimum, setBareMinimum] = useState('')
+  const [why, setWhy]                 = useState('')
 
-  const canSubmit = projectName.trim() && action.trim() && why.trim()
+  const canSubmit = !!(projectName.trim() && action.trim() && why.trim())
 
   const onSubmit = async () => {
     if (!canSubmit) return
     await setNonnegotiable({
       projectName: projectName.trim(),
       action: action.trim(),
+      bareMinimum: bareMinimum.trim() || undefined,
       why: why.trim(),
       createdAt: new Date().toISOString(),
     })
@@ -38,148 +35,31 @@ export default function SetupScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={{ flex: 1 }}
       >
-        <ScrollView
-          contentContainerStyle={s.scroll}
-          keyboardShouldPersistTaps="handled"
-        >
+        <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled">
           <Text style={s.heading}>Define your{'\n'}nonnegotiable.</Text>
           <Text style={s.sub}>One project. One daily action. One reason.</Text>
 
-          <Field
-            label="Project name"
-            placeholder="e.g. Writing my book"
-            value={projectName}
-            onChangeText={setProjectName}
-          />
-          <Field
-            label="Non-negotiable action"
-            placeholder="e.g. Write 500 words"
-            value={action}
-            onChangeText={setAction}
-            multiline
-          />
-          <Field
-            label="Why — one sentence"
-            placeholder="e.g. Because I owe it to my future self."
-            value={why}
-            onChangeText={setWhy}
-            multiline
-          />
+          <Field label="Project name"          placeholder="e.g. Writing my book"                 value={projectName} onChangeText={setProjectName} />
+          <Field label="Non-negotiable action" placeholder="e.g. Write 500 words"                 value={action}      onChangeText={setAction}      multiline />
+          <Field label="Bare minimum"          placeholder="e.g. Open the doc and write one sentence" value={bareMinimum} onChangeText={setBareMinimum} multiline />
+          <Field label="Why — one sentence"    placeholder="e.g. Because I owe it to my future self." value={why}         onChangeText={setWhy}         multiline />
 
-          <Pressable
+          <PrimaryButton
+            label="Commit"
+            variant="accent"
             onPress={onSubmit}
             disabled={!canSubmit}
-            style={({ pressed }) => [
-              s.btn,
-              !canSubmit && s.btnDisabled,
-              pressed && s.btnPressed,
-            ]}
-          >
-            <Text style={[s.btnText, !canSubmit && s.btnTextDisabled]}>
-              Commit
-            </Text>
-          </Pressable>
+            style={{ marginTop: 12 }}
+          />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   )
 }
 
-function Field({
-  label,
-  placeholder,
-  value,
-  onChangeText,
-  multiline,
-}: {
-  label: string
-  placeholder: string
-  value: string
-  onChangeText: (v: string) => void
-  multiline?: boolean
-}) {
-  const [focused, setFocused] = useState(false)
-  return (
-    <View style={s.field}>
-      <Text style={s.fieldLabel}>{label}</Text>
-      <TextInput
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor={Colors.secondary + '80'}
-        multiline={multiline}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        style={[s.input, multiline && s.inputMulti, focused && s.inputFocused]}
-      />
-    </View>
-  )
-}
-
 const s = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: Colors.bg },
-  scroll: { paddingHorizontal: 24, paddingTop: 32, paddingBottom: 48 },
-  heading: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: Colors.primary,
-    letterSpacing: -0.5,
-    lineHeight: 32,
-    marginBottom: 8,
-  },
-  sub: {
-    fontSize: 14,
-    color: Colors.secondary,
-    lineHeight: 22,
-    marginBottom: 36,
-  },
-  field: { marginBottom: 22 },
-  fieldLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
-    color: Colors.secondary,
-    marginBottom: 8,
-  },
-  input: {
-    backgroundColor: Colors.card,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.07)',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    color: Colors.primary,
-    fontSize: 16,
-    lineHeight: 24,
-  },
-  inputMulti: { minHeight: 78, textAlignVertical: 'top' },
-  inputFocused: { borderColor: Colors.accent + '60' },
-  btn: {
-    backgroundColor: Colors.accent,
-    borderRadius: 16,
-    paddingVertical: 18,
-    alignItems: 'center',
-    marginTop: 12,
-    shadowColor: Colors.accent,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  btnDisabled: {
-    backgroundColor: Colors.card,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.07)',
-    shadowOpacity: 0,
-    elevation: 0,
-  },
-  btnPressed: { opacity: 0.82, transform: [{ scale: 0.985 }] },
-  btnText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#fff',
-    letterSpacing: 0.4,
-  },
-  btnTextDisabled: { color: Colors.secondary },
+  safe:    { flex: 1, backgroundColor: Colors.bg },
+  scroll:  { paddingHorizontal: 24, paddingTop: 32, paddingBottom: 48 },
+  heading: { fontSize: 26, fontWeight: '800', color: Colors.primary, letterSpacing: -0.5, lineHeight: 32, marginBottom: 8 },
+  sub:     { fontSize: 14, color: Colors.secondary, lineHeight: 22, marginBottom: 36 },
 })

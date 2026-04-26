@@ -1,8 +1,18 @@
+export type ExecutionRule = {
+  trigger: string;
+  constraint: string;
+  action: string;
+  duration: string;
+};
+
 export type Nonnegotiable = {
   projectName: string;
   action: string;
+  bareMinimum?: string; // smallest possible step shown on the friction screen
   why: string;
   createdAt: string; // ISO date string
+  weeklyAdjustment?: string; // fix label from last weekly reset
+  executionRule?: ExecutionRule; // structured rule from last weekly reset
 };
 
 // Each day maps to 'yes' | 'no' — or undefined if not recorded

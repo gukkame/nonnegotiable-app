@@ -4,10 +4,13 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useEffect } from 'react';
 import { AppProvider, useApp } from '../lib/AppContext';
+import { useNotice } from '../lib/useNotice';
+import { NoticeModal } from '../components/NoticeModal';
 import React from 'react';
 
 function RootNavigator() {
   const { ready, nonnegotiable } = useApp();
+  const { notice, dismiss, completedThisWeek } = useNotice();
   const router   = useRouter();
   const segments = useSegments();
 
@@ -20,11 +23,22 @@ function RootNavigator() {
   }, [ready, nonnegotiable, segments, router]);
 
   return (
-    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#0B0B0C' } }}>
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="setup"    options={{ gestureEnabled: false }} />
-      <Stack.Screen name="friction" options={{ presentation: 'modal', gestureEnabled: true }} />
-    </Stack>
+    <>
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#0B0B0C' } }}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="setup"    options={{ gestureEnabled: false }} />
+        <Stack.Screen name="friction" options={{ presentation: 'modal', gestureEnabled: true }} />
+      </Stack>
+      {nonnegotiable && (
+        <NoticeModal
+          type={notice}
+          why={nonnegotiable.why}
+          projectName={nonnegotiable.projectName}
+          completedDays={completedThisWeek}
+          onDismiss={dismiss}
+        />
+      )}
+    </>
   );
 }
 
