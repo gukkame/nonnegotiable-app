@@ -7,6 +7,7 @@ import {
   loadCheckIns, saveCheckIns,
   loadWeeklyResetWeek, saveWeeklyResetWeek, clearWeeklyResetWeek,
 } from './storage';
+import { scheduleGoalNotifications, cancelAllNotifications } from './notifications';
 import { todayKey, getWeekKeys } from './date';
 
 type AppContextValue = {
@@ -46,6 +47,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const setNonnegotiable = useCallback(async (n: Nonnegotiable) => {
     await saveNonnegotiable(n);
     setNonnegotiableState(n);
+    scheduleGoalNotifications(n).catch(() => {});
   }, []);
 
   const markToday = useCallback(async (val: CheckInValue) => {
@@ -80,6 +82,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const resetAll = useCallback(async () => {
     await clearNonnegotiable();
     await clearWeeklyResetWeek();
+    await cancelAllNotifications();
     setNonnegotiableState(null);
     setCheckInsState({});
     setWeeklyResetWeek(null);

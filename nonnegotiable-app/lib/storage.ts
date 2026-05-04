@@ -5,10 +5,7 @@ const KEYS = {
   nonnegotiable:    '@nonnegotiable/definition',
   checkIns:         '@nonnegotiable/checkIns',
   weeklyResetWeek:  '@nonnegotiable/weeklyResetWeek',
-  noticeDates:      '@nonnegotiable/noticeDates',
 } as const;
-
-type NoticeDates = { daily?: string; skip?: string; sunday?: string };
 
 export async function loadNonnegotiable(): Promise<Nonnegotiable | null> {
   try {
@@ -56,19 +53,4 @@ export async function saveWeeklyResetWeek(weekKey: string): Promise<void> {
 
 export async function clearWeeklyResetWeek(): Promise<void> {
   await AsyncStorage.removeItem(KEYS.weeklyResetWeek);
-}
-
-export async function loadNoticeDates(): Promise<NoticeDates> {
-  try {
-    const raw = await AsyncStorage.getItem(KEYS.noticeDates);
-    return raw ? JSON.parse(raw) : {};
-  } catch { return {}; }
-}
-
-export async function saveNoticeDates(dates: NoticeDates): Promise<void> {
-  await AsyncStorage.setItem(KEYS.noticeDates, JSON.stringify(dates));
-}
-
-export async function clearNoticeDates(): Promise<void> {
-  await AsyncStorage.removeItem(KEYS.noticeDates);
 }

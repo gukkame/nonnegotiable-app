@@ -6,16 +6,16 @@ import { Colors } from '../lib/colors'
 import React, { useRef } from 'react'
 
 const NUDGES = [
-  "Don't think about the full task.\nJust do this one thing. That's enough to start.",
-  "Motivation follows action, not the other way around.\nStart before you feel ready.",
-  "You don't have to do it well.\nYou just have to do it.",
-  "The hardest part is sitting down.\nYou've already done the harder thing — you're here.",
-  "One small move breaks the inertia.\nEverything else gets easier after this.",
-  "You're not behind. You're just starting.\nThat's all this moment asks.",
-  "Resistance is loudest right before you begin.\nPush through the first sixty seconds.",
-  "No conditions. No 'when I feel like it'.\nJust this. Just now.",
-  "Done imperfectly beats not started perfectly.\nGo.",
-  "Your future self is watching.\nGive them something to be grateful for.",
+  "Don't think about the full task.\nJust do this one thing. That's enough to start",
+  "Motivation follows action, not the other way around.\nStart before you feel ready",
+  "You don't have to do it well.\nYou just have to do it",
+  "The hardest part is sitting down.\nYou've already done the harder thing — you're here",
+  "One small move breaks the inertia.\nEverything else gets easier after this",
+  "You're not behind. You're just starting.\nThat's all this moment asks",
+  "Resistance is loudest right before you begin.\nPush through the first sixty seconds",
+  "No conditions. No 'when I feel like it'.\nJust this. Just now",
+  "Done imperfectly beats not started perfectly.\nGo",
+  "Your future self is watching.\nGive them something to be grateful for",
 ]
 
 export default function FrictionScreen() {

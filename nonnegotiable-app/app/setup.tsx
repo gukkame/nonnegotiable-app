@@ -42,7 +42,7 @@ export default function SetupScreen() {
           <Field label="Project name"          placeholder="e.g. Writing my book"                 value={projectName} onChangeText={setProjectName} />
           <Field label="Non-negotiable action" placeholder="e.g. Write 500 words"                 value={action}      onChangeText={setAction}      multiline />
           <Field label="Bare minimum"          placeholder="e.g. Open the doc and write one sentence" value={bareMinimum} onChangeText={setBareMinimum} multiline />
-          <Field label="Why — one sentence"    placeholder="e.g. Because I owe it to my future self." value={why}         onChangeText={setWhy}         multiline />
+          <Field label="Why — one sentence"    placeholder="e.g. Because I owe it to my future self" value={why}         onChangeText={setWhy}         multiline />
 
           <PrimaryButton
             label="Commit"

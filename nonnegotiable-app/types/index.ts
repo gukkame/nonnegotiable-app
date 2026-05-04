@@ -11,6 +11,7 @@ export type Nonnegotiable = {
   bareMinimum?: string; // smallest possible step shown on the friction screen
   why: string;
   createdAt: string; // ISO date string
+  notificationTime?: string; // HH:MM in 24h format, e.g. "09:00"
   weeklyAdjustment?: string; // fix label from last weekly reset
   executionRule?: ExecutionRule; // structured rule from last weekly reset
 };
