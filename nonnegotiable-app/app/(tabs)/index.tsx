@@ -81,7 +81,16 @@ export default function HomeScreen() {
             </>
           )}
 
-          <ResetLink onConfirm={resetAll} />
+          {todayValue ? (
+            <ResetLink
+              label="Undo check-in"
+              title="Undo today's check-in?"
+              message="This will clear your answer for today."
+              onConfirm={() => markToday(todayValue)}
+            />
+          ) : (
+            <ResetLink onConfirm={resetAll} />
+          )}
         </View>
       </View>
     </SafeAreaView>

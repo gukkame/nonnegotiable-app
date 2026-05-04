@@ -22,7 +22,7 @@ export async function saveNonnegotiable(n: Nonnegotiable): Promise<void> {
 }
 
 export async function clearNonnegotiable(): Promise<void> {
-  await AsyncStorage.multiRemove([KEYS.nonnegotiable, KEYS.checkIns]);
+  await AsyncStorage.removeItem(KEYS.nonnegotiable);
 }
 
 export async function loadCheckIns(): Promise<CheckIns> {

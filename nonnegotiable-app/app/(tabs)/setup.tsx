@@ -4,6 +4,7 @@ import {
   Text,
   TextInput,
   Pressable,
+  Switch,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -50,6 +51,9 @@ export default function SetupTabScreen() {
   const [notificationTime, setNotificationTime] = useState(
     nonnegotiable?.notificationTime ?? '09:00',
   )
+  const [dailyReminderEnabled, setDailyReminderEnabled] = useState(
+    nonnegotiable?.dailyReminderEnabled !== false,
+  )
   const [showTimePicker, setShowTimePicker] = useState(false)
 
   const canSubmit = projectName.trim() && action.trim() && why.trim()
@@ -58,7 +62,8 @@ export default function SetupTabScreen() {
     action.trim() !== (nonnegotiable?.action ?? '') ||
     bareMinimum.trim() !== (nonnegotiable?.bareMinimum ?? '') ||
     why.trim() !== (nonnegotiable?.why ?? '') ||
-    notificationTime !== (nonnegotiable?.notificationTime ?? '09:00')
+    notificationTime !== (nonnegotiable?.notificationTime ?? '09:00') ||
+    dailyReminderEnabled !== (nonnegotiable?.dailyReminderEnabled !== false)
 
   const onSave = async () => {
     if (!canSubmit) return
@@ -68,6 +73,7 @@ export default function SetupTabScreen() {
       bareMinimum: bareMinimum.trim() || undefined,
       why: why.trim(),
       notificationTime,
+      dailyReminderEnabled,
       createdAt: nonnegotiable?.createdAt ?? new Date().toISOString(),
       weeklyAdjustment: nonnegotiable?.weeklyAdjustment,
     })
@@ -117,14 +123,10 @@ export default function SetupTabScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={{ flex: 1 }}
       >
-        <Pressable
-          onPress={Keyboard.dismiss}
-          style={{ flex: 1 }}
-          accessible={false}
-        >
           <ScrollView
             contentContainerStyle={styleSheet.scroll}
             keyboardShouldPersistTaps="handled"
+            onScrollBeginDrag={Keyboard.dismiss}
           >
             <Text style={styleSheet.heading}>Your nonnegotiable</Text>
             <Text style={styleSheet.sub}>
@@ -160,21 +162,39 @@ export default function SetupTabScreen() {
             />
 
             <View style={styleSheet.field}>
-              <Text style={styleSheet.fieldLabel}>Daily reminder time</Text>
-              <Pressable
-                style={styleSheet.timeRow}
-                onPress={() => setShowTimePicker((v) => !v)}
-              >
-                <Text style={styleSheet.timeText}>{timeDisplay}</Text>
-                <Text style={styleSheet.timeAmpm}>{ampm}</Text>
-              </Pressable>
+              <Text style={styleSheet.fieldLabel}>Daily reminder</Text>
+              <View style={styleSheet.timeRow}>
+                <Pressable
+                  style={{ flex: 1, flexDirection: 'row', alignItems: 'baseline', gap: 6 }}
+                  onPress={() => dailyReminderEnabled && setShowTimePicker((v) => !v)}
+                >
+                  <Text style={[styleSheet.timeText, !dailyReminderEnabled && styleSheet.timeTextDisabled]}>
+                    {timeDisplay}
+                  </Text>
+                  <Text style={[styleSheet.timeAmpm, !dailyReminderEnabled && styleSheet.timeTextDisabled]}>
+                    {ampm}
+                  </Text>
+                </Pressable>
+                <Switch
+                  value={dailyReminderEnabled}
+                  onValueChange={(v) => {
+                    setDailyReminderEnabled(v)
+                    if (!v) setShowTimePicker(false)
+                  }}
+                  trackColor={{ false: 'rgba(255,255,255,0.1)', true: Colors.accent }}
+                  thumbColor="#fff"
+                />
+              </View>
               <Text style={styleSheet.timeHint}>
-                You'll get a push notification at this time. A follow-up nudge
-                comes 2h later, plus a Sunday weekly check-in.
+                {dailyReminderEnabled
+                  ? 'Push notification at this time, plus a follow-up nudge 2h later. Sunday check-in is always on.'
+                  : 'Only the Sunday weekly check-in notification is active.'}
               </Text>
-              {/* <Pressable style={styleSheet.testBtn} onPress={onTestNotification}>
-                <Text style={styleSheet.testBtnText}>Send test notification</Text>
-              </Pressable> */}
+              {dailyReminderEnabled && (
+                <Pressable style={styleSheet.testBtn} onPress={onTestNotification}>
+                  <Text style={styleSheet.testBtnText}>Send test notification</Text>
+                </Pressable>
+              )}
             </View>
 
             {showTimePicker && (
@@ -206,13 +226,12 @@ export default function SetupTabScreen() {
               <Text style={styleSheet.btnText}>Save changes</Text>
             </Pressable>
 
-            <Pressable style={styleSheet.resetLink} onPress={confirmReset}>
+            {/* <Pressable style={styleSheet.resetLink} onPress={confirmReset}>
               <Text style={styleSheet.resetText}>
                 Reset project &amp; check-ins
               </Text>
-            </Pressable>
+            </Pressable> */}
           </ScrollView>
-        </Pressable>
       </KeyboardAvoidingView>
     </SafeAreaView>
   )
@@ -298,13 +317,14 @@ const styleSheet = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.07)',
     borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingVertical: 12,
     flexDirection: 'row',
-    alignItems: 'baseline',
+    alignItems: 'center',
     gap: 6,
   },
   timeText: { fontSize: 24, fontWeight: '700', color: Colors.primary },
   timeAmpm: { fontSize: 14, fontWeight: '600', color: Colors.secondary },
+  timeTextDisabled: { opacity: 0.3 },
   timeHint: {
     fontSize: 12,
     color: Colors.secondary,

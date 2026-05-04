@@ -11,7 +11,7 @@ type Props = {
 export function ResetLink({
   label = 'Reset project',
   title = 'Reset project?',
-  message = 'This clears your nonnegotiable and all check-ins.',
+  message = 'This clears your nonnegotiable. Check-in history is kept.',
   onConfirm,
 }: Props) {
   const confirm = () =>

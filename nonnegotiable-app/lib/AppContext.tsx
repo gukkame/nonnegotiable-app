@@ -76,6 +76,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       };
       await saveNonnegotiable(updated);
       setNonnegotiableState(updated);
+      scheduleGoalNotifications(updated).catch(() => {});
     }
   }, [nonnegotiable]);
 
@@ -84,7 +85,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     await clearWeeklyResetWeek();
     await cancelAllNotifications();
     setNonnegotiableState(null);
-    setCheckInsState({});
     setWeeklyResetWeek(null);
   }, []);
 

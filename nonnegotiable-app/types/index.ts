@@ -3,6 +3,7 @@ export type ExecutionRule = {
   constraint: string;
   action: string;
   duration: string;
+  notificationTime?: string; // HH:MM when the trigger notification fires
 };
 
 export type Nonnegotiable = {
@@ -12,6 +13,7 @@ export type Nonnegotiable = {
   why: string;
   createdAt: string; // ISO date string
   notificationTime?: string; // HH:MM in 24h format, e.g. "09:00"
+  dailyReminderEnabled?: boolean; // defaults to true
   weeklyAdjustment?: string; // fix label from last weekly reset
   executionRule?: ExecutionRule; // structured rule from last weekly reset
 };

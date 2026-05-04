@@ -57,36 +57,42 @@ export async function scheduleGoalNotifications(
   const granted = await requestNotificationPermission()
   if (!granted) return
 
-  const [hours, minutes] = parseTime(n.notificationTime ?? '09:00')
+  const [hours, minutes] = parseTime(
+    n.executionRule?.notificationTime ?? n.notificationTime ?? '09:00',
+  )
 
-  // Daily reminder at the user's chosen time
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title: n.action,
-      body: `${pick(DAILY_QUOTES)}\n Goal: ${n.why}`,
-      data: { type: 'daily' },
-    },
-    trigger: {
-      type: Notifications.SchedulableTriggerInputTypes.DAILY,
-      hour: hours,
-      minute: minutes,
-    },
-  })
+  const dailyEnabled = n.dailyReminderEnabled !== false
 
-  // Skip-recovery reminder ~2 hours later (capped at 22:00)
-  const skipHour = Math.min(hours + 2, 22)
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title: `${n.projectName} — still time today`,
-      body: pick(SKIP_QUOTES),
-      data: { type: 'skip' },
-    },
-    trigger: {
-      type: Notifications.SchedulableTriggerInputTypes.DAILY,
-      hour: skipHour,
-      minute: minutes,
-    },
-  })
+  if (dailyEnabled) {
+    // Daily reminder at the user's chosen time
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: n.action,
+        body: `${pick(DAILY_QUOTES)}\n Goal: ${n.why}`,
+        data: { type: 'daily' },
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DAILY,
+        hour: hours,
+        minute: minutes,
+      },
+    })
+
+    // Skip-recovery reminder ~2 hours later (capped at 22:00)
+    const skipHour = Math.min(hours + 2, 22)
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: `${n.projectName} — still time today`,
+        body: pick(SKIP_QUOTES),
+        data: { type: 'skip' },
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DAILY,
+        hour: skipHour,
+        minute: minutes,
+      },
+    })
+  }
 
   // Weekly Sunday reset reminder at the same time
   await Notifications.scheduleNotificationAsync({
@@ -115,7 +121,7 @@ export async function sendTestNotification(n: Nonnegotiable): Promise<boolean> {
   await Notifications.scheduleNotificationAsync({
     content: {
       title: `Test — ${n.action}`,
-      body: `${pick(DAILY_QUOTES)}\n"${n.why}"`,
+      body: `${pick(DAILY_QUOTES)}\nGoal: ${n.why}`,
       data: { type: 'test' },
     },
     trigger: {

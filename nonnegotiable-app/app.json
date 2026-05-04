@@ -27,12 +27,7 @@
     "plugins": [
       "expo-router",
       "@react-native-community/datetimepicker",
-      [
-        "expo-notifications",
-        {
-          "sounds": []
-        }
-      ]
+      "./plugins/withNoApsEntitlement"
     ],
     "experiments": {
       "typedRoutes": true

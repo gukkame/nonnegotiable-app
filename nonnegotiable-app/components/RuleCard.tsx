@@ -11,18 +11,31 @@ type Props = {
   style?: StyleProp<ViewStyle>
 }
 
+function formatTime12(hhmm: string): string {
+  const [hh, mm] = hhmm.split(':').map(Number)
+  const isPm = (hh ?? 9) >= 12
+  const display = (hh ?? 9) % 12 || 12
+  return `${display}:${String(mm ?? 0).padStart(2, '0')} ${isPm ? 'PM' : 'AM'}`
+}
+
 export function RuleCard({ rule, compact, style }: Props) {
+  const notifyRow = rule.notificationTime
+    ? [{ label: 'Notify', value: formatTime12(rule.notificationTime) }]
+    : []
+
   const rows = compact
     ? [
         { label: 'When', value: rule.trigger },
         { label: 'Rule', value: rule.constraint },
         { label: 'For', value: rule.duration },
+        ...notifyRow,
       ]
     : [
         { label: 'Trigger', value: rule.trigger },
         { label: 'Constraint', value: rule.constraint },
         { label: 'Action', value: rule.action },
         { label: 'Duration', value: rule.duration },
+        ...notifyRow,
       ]
 
   return (
